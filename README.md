@@ -6,7 +6,7 @@ The program is not just the game itself, but a small application that includes a
 
 The purpose of this project is to demonstrate my ability to build a functional Java application, handle user interaction, and manage data such as saving and displaying scores.
 
-[Software Demo Video](https://youtu.be/TXP0NXEeW64)
+[Software Demo Video](https://youtu.be/uCNvU_G_H84)
 
 # Development Environment
 
