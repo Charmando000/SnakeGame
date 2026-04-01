@@ -29,10 +29,6 @@ public class lobby extends JPanel{
         gbc.gridy = 2;
         add(exitButton, gbc);
 
-        add(playButton);
-        add(scoreButton);
-        add(exitButton);
-
         //Button play
         playButton.addActionListener(e -> {
             frame.getContentPane().removeAll();
@@ -66,6 +62,7 @@ public class lobby extends JPanel{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        
 
         // fondo oscuro
         g.setColor(Color.black);
@@ -91,6 +88,7 @@ public class lobby extends JPanel{
         public Score(String name, int points) {
             this.name = name;
             this.points = points;
+            
         }
     }
     

@@ -7,6 +7,7 @@ public class ScorePanel extends JPanel {
     public ScorePanel(JFrame frame) {
         setPreferredSize(new Dimension(600, 600));
         setLayout(new BorderLayout());
+        setBackground(Color.black);
 
         JTextArea textArea = new JTextArea();
         textArea.setEditable(false);
@@ -15,7 +16,7 @@ public class ScorePanel extends JPanel {
         List<score> scores = ScoreManager.loadScores();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("🏆 RANKING 🏆\n\n");
+        sb.append(" RANKING\n\n");
 
         for (score s : scores) {
             sb.append(s.name + " - " + s.points + "\n");

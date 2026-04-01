@@ -29,11 +29,20 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
     Tile food;
     Random random;
 
+    enum GameState {
+        MENU,
+        PLAYING,
+        GAME_OVER
+    }
+
+    GameState state = GameState.MENU;
+
     //game logic
     Timer gameLoop;
     int velocityX = 0;
     int velocityY = 0;
     boolean gameOver = false;
+    boolean scoreSaved = false;
 
 
     SnakeGame(int boardWidth, int boardHeight, JFrame frame) {
@@ -68,47 +77,50 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
     }
 
     public void draw(Graphics g) {
-        //grid
-        //for (int i = 0; i < boardWidth / tileSize; i++) {
-            //(x1, y1, x2, y2)
-            //g.drawLine(i*tileSize, 0, i*tileSize, boardHeight);
-            //g.drawLine(0, i* tileSize, boardWidth, i * tileSize);
-
-
-        //}
+        if (state == GameState.MENU) {
+            drawMenu(g);
+            return;
+        }
 
         //food
         g.setColor(Color.red);
-        //g.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
         g.fill3DRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize, true);
-
 
         // snake head
         g.setColor(Color.green);
-        //g.fillRect(snakeHead.x * tileSize, snakeHead.y * tileSize, tileSize, tileSize);
         g.fill3DRect(snakeHead.x * tileSize, snakeHead.y * tileSize, tileSize, tileSize, true);
 
         // snake body
-        for(int i = 0; i < snakeBody.size(); i++){
+        for (int i = 0; i < snakeBody.size(); i++) {
             Tile snakePart = snakeBody.get(i);
-            //g.fillRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize);
             g.fill3DRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize, true);
         }
 
-        //Score
         g.setFont(new Font("Arial", Font.BOLD, 16));
-        if (gameOver){
-            g.setColor(Color.red);
-            g.drawString("Game Over: " + String.valueOf(snakeBody.size()) + " Press 'R' to restart", tileSize - 16, tileSize);
-            String name = JOptionPane.showInputDialog(this, "Ingresa tu nombre:");
-            if (name != null && !name.isEmpty()) {
-            ScoreManager.saveScore(name, snakeBody.size());
-        }
+        g.setColor(Color.white);
+        g.drawString("Score: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
 
-        }else{
-            g.drawString("Score: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+        if (state == GameState.GAME_OVER) {
+            g.setColor(Color.red);
+            g.setFont(new Font("Arial", Font.BOLD, 40));
+            g.drawString("GAME OVER", boardWidth / 2 - 130, boardHeight / 2 - 20);
+
+            g.setFont(new Font("Arial", Font.PLAIN, 20));
+            g.drawString("Press R to Restart", boardWidth / 2 - 120, boardHeight / 2 + 20);
         }
-        
+    }
+
+    private void drawMenu(Graphics g) {
+        g.setColor(Color.black);
+        g.fillRect(0, 0, boardWidth, boardHeight);
+
+        g.setColor(Color.green);
+        g.setFont(new Font("Arial", Font.BOLD, 40));
+        g.drawString("SNAKE GAME", 130, 200);
+
+        g.setFont(new Font("Arial", Font.PLAIN, 20));
+        g.drawString("Press ENTER to Start", 150, 260);
+        g.drawString("Press ESC to go back to lobby", 120, 300);
     }
 
     public void placefood(){
@@ -126,6 +138,8 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         if(collision(snakeHead, food)){
             snakeBody.add(new Tile(food.x, food.y));
             placefood();
+
+            soundPlayer.playSound("sounds/eat.wav");
         }
 
         //Snake body
@@ -151,17 +165,26 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
 
             //collision with body
             if (collision(snakeHead, snakePart)){
+                soundPlayer.playSound("sounds/gameover.wav");
                 gameOver = true;
             }
         }
         //collision with walls
         if (snakeHead.x*tileSize < 0 || snakeHead.x*tileSize > boardWidth
             || snakeHead.y*tileSize < 0 || snakeHead.y*tileSize > boardHeight) {
+            soundPlayer.playSound("sounds/gameover.wav");
             gameOver = true;
         }
     }
 
-    public void restartGame(){
+    public void restartGame() {
+        resetGame();
+        state = GameState.PLAYING;
+        soundPlayer.playMusic("sounds/music.wav");
+        gameLoop.start();
+    }
+
+    public void resetGame() {
         snakeHead = new Tile(5, 5);
         snakeBody.clear();
 
@@ -171,29 +194,54 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         placefood();
 
         gameOver = false;
+        scoreSaved = false;
+    }
 
-        gameLoop.start();
+    public void startGame() {
+        resetGame();
+        state = GameState.PLAYING;
+        soundPlayer.playMusic("sounds/music.wav");
+        if (!gameLoop.isRunning()) {
+            gameLoop.start();
+        }
+        requestFocusInWindow();
     }
 
     //game loop
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (state == GameState.PLAYING) {
+            move();
+            repaint();
 
-        move();
-        repaint();
+            if (gameOver) {
+                state = GameState.GAME_OVER;
+                gameLoop.stop();
+                promptSaveScore();
+            }
+        } else {
+            repaint();
+        }
+    }
 
-        if(gameOver){
-            gameLoop.stop();
+    private void promptSaveScore() {
+        if (!scoreSaved) {
+            String name = JOptionPane.showInputDialog(this, "Ingresa tu nombre:");
+            if (name != null && !name.isEmpty()) {
+                ScoreManager.saveScore(name, snakeBody.size());
+            }
+            scoreSaved = true;
         }
     }
 
     private void returntolobby() {
 
-    // detener el juego
-    gameLoop.stop();
+        // detener el juego
+        gameLoop.stop();
+        soundPlayer.stopMusic();
 
-    // guardar puntaje si no es 0
-    if (snakeBody.size() > 0 && !gameOver) {
+        // guardar puntaje si no es 0
+        if (snakeBody.size() > 0 && !gameOver) {
             String name = JOptionPane.showInputDialog(this, "Keep your Name - put your name:");
             if (name != null && !name.isEmpty()) {
                 ScoreManager.saveScore(name, snakeBody.size());
@@ -211,10 +259,23 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             returntolobby();
+            return;
         }
-        if(gameOver && e.getKeyCode() == KeyEvent.VK_R){
+
+        if (state == GameState.MENU && e.getKeyCode() == KeyEvent.VK_ENTER) {
+            startGame();
+            return;
+        }
+
+        if (state == GameState.GAME_OVER && e.getKeyCode() == KeyEvent.VK_R) {
             restartGame();
+            return;
         }
+
+        if (state != GameState.PLAYING) {
+            return;
+        }
+
         if (e.getKeyCode() == KeyEvent.VK_UP && velocityY != 1) {
             velocityX = 0;
             velocityY = -1;
