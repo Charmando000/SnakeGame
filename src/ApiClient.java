@@ -41,6 +41,16 @@ public class ApiClient {
 
             conn.setRequestMethod("GET");
 
+            // 🔥 AGREGA ESTO
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode != 200) {
+                return "Error: " + responseCode;
+            }
+
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(conn.getInputStream())
             );
@@ -54,6 +64,7 @@ public class ApiClient {
 
         } catch (Exception e) {
             e.printStackTrace();
+            return "Error loading scores";
         }
 
         return result.toString();
