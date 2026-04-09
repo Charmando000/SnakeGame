@@ -36,7 +36,7 @@ public class ApiClient {
         StringBuilder result = new StringBuilder();
 
         try {
-            URL url = new URL("http://localhost:8080/scores");
+            URL url = new URL("https://java-spring-production-6df1.up.railway.app/scores");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
