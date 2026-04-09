@@ -1,7 +1,7 @@
 import javax.sound.sampled.*;
 import java.io.File;
 
-public class soundPlayer {
+public class SoundPlayer {
 
     private static Clip musicClip;
 

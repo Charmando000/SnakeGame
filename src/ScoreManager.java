@@ -4,22 +4,25 @@ import java.util.*;
 public class ScoreManager {
 
     public static void saveScore(String name, int points) {
+        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("scores.txt", true))) {
             bw.write(name + "," + points);
             bw.newLine();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error saving score to file!");
+        } finally {
+            System.out.println("Score saved 🔥");
         }
     }
 
-    public static List<score> loadScores() {
-        List<score> scores = new ArrayList<>();
+    public static List<Score> loadScores() {
+        List<Score> scores = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader("scores.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                scores.add(new score(parts[0], Integer.parseInt(parts[1])));
+                scores.add(new Score(parts[0], Integer.parseInt(parts[1])));
             }
         } catch (IOException e) {
             System.out.println("don't have any score yet!");

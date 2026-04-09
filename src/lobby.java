@@ -1,9 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class lobby extends JPanel{
+public class Lobby extends JPanel{
 
-    public lobby (JFrame frame){
+    public Lobby (JFrame frame){
         setPreferredSize(new Dimension(600, 600));
         setLayout(new GridBagLayout());
         
@@ -81,15 +81,5 @@ public class lobby extends JPanel{
             g.drawLine(0, i, getWidth(), i);
         }
     }
-    public class Score {
-        String name;
-        int points;
-
-        public Score(String name, int points) {
-            this.name = name;
-            this.points = points;
-            
-        }
-    }
-    
+ 
 }

@@ -8,7 +8,7 @@ public class App {
         JFrame frame = new JFrame("Snake Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        lobby menu = new lobby(frame);
+        Lobby menu = new Lobby(frame);
         frame.add(menu);
         frame.pack();
         frame.setLocationRelativeTo(null);
