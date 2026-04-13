@@ -41,7 +41,6 @@ public class ApiClient {
 
             conn.setRequestMethod("GET");
 
-            // 🔥 AGREGA ESTO
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
 
